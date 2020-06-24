@@ -1,7 +1,8 @@
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request, jsonify, make_response
 from util import json_response
 
 import data_handler
+import data_manager as dm
 
 app = Flask(__name__)
 
@@ -23,6 +24,24 @@ def get_boards():
     return data_handler.get_boards()
 
 
+@app.route("/get-cards")
+@json_response
+def get_cards():
+    """
+    All the boards
+    """
+    return data_handler.get_cards()
+
+
+@app.route("/get-statuses")
+@json_response
+def get_statuses():
+    """
+    All the boards
+    """
+    return data_handler.get_statuses()
+
+
 @app.route("/get-cards/<int:board_id>")
 @json_response
 def get_cards_for_board(board_id: int):
@@ -33,8 +52,24 @@ def get_cards_for_board(board_id: int):
     return data_handler.get_cards_for_board(board_id)
 
 
+@app.route("/new-board/<board_name>", methods=['GET', 'POST'])
+@json_response
+def create_new_board(board_name: str):
+    """
+    Create new board
+    """
+    try:
+        new_board = request.get_json()
+        response = make_response(jsonify({"message": "JSON received"}), 200)
+        dm.write_boards(new_board['name'])
+        return board_name
+    except:
+        return "An error has occurred"
+
+
 def main():
-    app.run(debug=True)
+    app.run(debug=True,
+            port=5001)
 
     # Serving the favicon
     with app.app_context():

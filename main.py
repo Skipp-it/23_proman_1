@@ -62,9 +62,52 @@ def create_new_board(board_name: str):
         new_board = request.get_json()
         response = make_response(jsonify({"message": "JSON received"}), 200)
         dm.write_boards(new_board['name'])
+        board_id = dm.get_last_board_id()
+        card_name = 'new card'
+        status_id = '0'
+        order = '0'
+        dm.write_cards(board_id['max'], card_name, status_id, order)
         return board_name
     except:
         return "An error has occurred"
+
+
+@app.route("/new-card/<board_id>", methods=['GET', 'POST'])
+@json_response
+def create_new_card(board_id):
+    """
+    Create new card
+    """
+    try:
+        board_id_obj = request.get_json()
+        response = make_response(jsonify({"message": "JSON received"}), 200)
+        target_board_id = board_id_obj['name']
+        card_name = 'new card'
+        status_id = str(0)
+        max_order = dm.get_cards_order(target_board_id)
+        order = str(int(max_order['max']) + 1)
+        dm.write_cards(target_board_id, card_name, status_id, order)
+        return "create new card successful"
+    except:
+        return "An error has occurred"
+
+
+@app.route("/delete-card/<object>", methods=['GET', 'POST'])
+@json_response
+def delete_card(object):
+    try:
+        data = request.get_json()['name']# de transformat in dict
+        data = data[1:-1]
+        response = make_response(jsonify({"message": "JSON received"}), 200)
+        data_list = data.split(',')
+        board_id = data_list[0]
+        status_id = data_list[1]
+        card_order = data_list[2]
+        dm.delete_card(board_id, status_id, card_order)
+        return "create new card successful"
+    except:
+        return "An error has occurred"
+
 
 
 def main():

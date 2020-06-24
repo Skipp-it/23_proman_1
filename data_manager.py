@@ -87,7 +87,7 @@ def write_statuses(cursor: RealDictCursor, title: str) -> list:
 
 
 @database_common.connection_handler
-def write_cards(cursor: RealDictCursor, boards_id: int, title: str, statuses_id: int, ordered: int) -> list:
+def write_cards(cursor: RealDictCursor, boards_id, title: str, statuses_id, ordered) -> list:
 
     query = """
             INSERT INTO cards (boards_id, title, statuses_id, ordered)
@@ -96,6 +96,30 @@ def write_cards(cursor: RealDictCursor, boards_id: int, title: str, statuses_id:
     args = {'boards_id': boards_id, 'title': title, 'statuses_id': statuses_id, 'ordered': ordered}
     cursor.execute(query, args)
     return ""
+
+
+@database_common.connection_handler
+def get_cards_order(cursor: RealDictCursor, boards_id) -> list:
+    query = """
+            SELECT MAX(ordered)
+            FROM cards
+            WHERE boards_id = %(boards_id)s AND statuses_id = 0
+    """
+    args = {'boards_id': boards_id}
+    cursor.execute(query, args)
+    return cursor.fetchone()
+
+
+@database_common.connection_handler
+def get_last_board_id(cursor: RealDictCursor) -> list:
+    query = """
+            SELECT MAX(id)
+            FROM boards
+    """
+    cursor.execute(query)
+    return cursor.fetchone()
+
+
 
 
 @database_common.connection_handler
@@ -157,6 +181,19 @@ def update_cards(cursor: RealDictCursor, id: int, boards_id: int, title: str, st
     cursor.execute(updated_query, args)
     return cursor.fetchall()
 
+
+@database_common.connection_handler
+def delete_card(cursor: RealDictCursor, boards_id, statuses_id, ordered) -> list:
+
+    query = """
+            DELETE FROM cards
+            WHERE   boards_id = %(boards_id)s AND 
+                    statuses_id = %(statuses_id)s AND
+                    ordered = %(ordered)s;
+    """
+    args = {'boards_id': boards_id, 'statuses_id': statuses_id, 'ordered': ordered}
+    cursor.execute(query, args)
+    return""
 
 #
 # @database_common.connection_handler

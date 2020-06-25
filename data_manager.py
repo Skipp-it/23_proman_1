@@ -131,50 +131,52 @@ def update_boards(cursor: RealDictCursor, id: int, title: str) -> list:
     args = {'id': id, 'title': title}
     cursor.execute(query, args)
 
+
+
+@database_common.connection_handler
+def update_cards(cursor: RealDictCursor, boards_id: int, title: str, statuses_id: int, ordered: int) -> list:
+
+    query = """
+            UPDATE cards
+            SET title = %(title)s
+            WHERE boards_id = %(boards_id)s AND statuses_id = %(statuses_id)s AND ordered = %(ordered)s
+            """
+    args = {'boards_id': boards_id, 'title': title, 'statuses_id': statuses_id, 'ordered': ordered}
+    cursor.execute(query, args)
+
+
+@database_common.connection_handler
+def get_card_id(cursor: RealDictCursor, boards_id: int, statuses_id: int, ordered: int) -> list:
+    query = '''
+            SELECT id
+            FROM cards
+            WHERE boards_id = %(boards_id)s AND statuses_id = %(statuses_id)s AND ordered = %(ordered)s
+    '''
+    args = {'boards_id': boards_id, 'statuses_id': statuses_id, 'ordered': ordered}
+    cursor.execute(query, args)
+    return cursor.fetchone()
+
+
+@database_common.connection_handler
+def update_statuses(cursor: RealDictCursor, boards_id: int, statuses_id: int, ordered: int, id: int) -> list:
+    query = """
+            UPDATE cards
+            SET boards_id = %(boards_id)s, statuses_id = %(statuses_id)s, ordered = %(ordered)s
+            WHERE id = %(id)s
+            """
+    args = {'boards_id': boards_id, 'statuses_id': statuses_id, 'ordered': ordered, 'id': id}
+    cursor.execute(query, args)
+
+
+
+
+
 ######
 
 
 
 
 
-@database_common.connection_handler
-def update_statuses(cursor: RealDictCursor, id: int, title: str) -> list:
-
-    query = """
-            UPDATE statuses
-            SET title = %(title)s
-            WHERE id = %(id)s
-            """
-    args = {'id': id, 'title': title}
-    cursor.execute(query, args)
-    updated_query = f"""
-            SELECT *
-            FROM statuses
-            WHERE id = %(id)s
-            """
-    args = {'id': id}
-    cursor.execute(updated_query, args)
-    return cursor.fetchall()
-
-
-@database_common.connection_handler
-def update_cards(cursor: RealDictCursor, id: int, boards_id: int, title: str, statuses_id: int, ordered: int) -> list:
-
-    query = """
-            UPDATE cards
-            SET boards_id = %(boards_id)s, title = %(title)s, statuses_id = %(statuses_id)s, ordered = %(ordered)s
-            WHERE id = %(id)s
-            """
-    args = {'id': id, 'boards_id': boards_id, 'title': title, 'statuses_id': statuses_id, 'ordered': ordered}
-    cursor.execute(query, args)
-    updated_query = f"""
-            SELECT *
-            FROM cards
-            WHERE id = %(id)s
-            """
-    args = {'id': id}
-    cursor.execute(updated_query, args)
-    return cursor.fetchall()
 
 
 @database_common.connection_handler

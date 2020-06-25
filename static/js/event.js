@@ -7,6 +7,7 @@ const newCardRoute = '/new-card';
 const deleteCardUrl = '/delete-card';
 const updateCardUrl = '/update-card-name';
 const updateBoardNameRoute = '/update-board-name'
+const updateStatusCard = '/update-status'
 const inputNewBoard = document.getElementById('input-board');
 const saveButton = document.querySelector('.saveBtn');
 const modal = document.querySelector('.modal');
@@ -94,6 +95,10 @@ function showBoards(boards) {
             title.innerHTML = `${board.title}`
             title.contentEditable = true;
             title.addEventListener('keydown',event => {
+                let oldTitle = title.innerText
+                if (event.key === 'Escape') {
+                    title.innerHTML = oldTitle
+                }
                 if (event.key === 'Enter') {
                     event.preventDefault()
                     let object = {'name': title.textContent, 'id': board.id}
@@ -156,7 +161,6 @@ function showStatuses(statuses) {
                 boardColContent.setAttribute('data-parent', `#board${boardId}`)
                 boardColContent.classList.add('dropzone')
                 boardColContent.addEventListener('dragover',dragOver)
-                boardColContent.addEventListener('onmouseup', moveElement)
             boardColumn.appendChild(boardColTitle)
             boardColumn.appendChild(boardColContent)
             boardColumnHolder.appendChild(boardColumn)
@@ -189,6 +193,7 @@ function showCards(cards) {
                 task.setAttribute('draggable',"true")
                 task.addEventListener('dragstart', dragStart)
                 task.addEventListener('dragend', dragEnd)
+
                 let buttonRemove = document.createElement('div')
                 buttonRemove.setAttribute('status-id', `${statusId}`)
                 buttonRemove.setAttribute('board-id', `${boardId}`)
@@ -205,6 +210,13 @@ function showCards(cards) {
                 let cardTitle = document.createElement('div')
                 cardTitle.classList.add('card-title')
                 cardTitle.innerHTML = `${card.title}`
+                cardTitle.contentEditable = true;
+                cardTitle.addEventListener('keydown',event => {
+                if (event.key === 'Enter') {
+                    event.preventDefault()
+                    let object = {'cardName': cardTitle.textContent,'boardId': boardId, 'statusId': statusId, 'cardOrdered': card.ordered}
+                    update_entry(object,updateCardUrl)
+            }})
                 task.appendChild(cardTitle)
                 task.appendChild(buttonRemove)
                 boardColContent.appendChild(task)
@@ -212,7 +224,6 @@ function showCards(cards) {
         }
     }
 }
-
 
 ////Drag & Drop
 
@@ -235,16 +246,32 @@ function dragOver(e) {
 
 
 function dragEnd(e) {
-    console.log("dragend")
     if (elementOnTheMove == null || targetElement == null){return;}
     elementOnTheMove.parentNode.removeChild(elementOnTheMove)
     if (targetElement.classList.contains('dropzone')) {
         targetElement.prepend(elementOnTheMove)
+        let boardId = targetElement.getAttribute('board-id')
+        let statusId = targetElement.getAttribute('status-id')
+        let cardOrder = targetElement.getAttribute('order-id')
+        let boardIdOld = elementOnTheMove.getAttribute('board-id')
+        let statusIdOld = elementOnTheMove.getAttribute('status-id')
+        let cardOrderOld = elementOnTheMove.getAttribute('order-id')
+        if (cardOrder == null) { cardOrder = '0' }
+        if (cardOrderOld == null) { cardOrderOld = '0' }
+        let object = {
+            'board_id': boardId,
+            'status_id': statusId,
+            'card_order': cardOrder,
+            'boardIdOld': boardIdOld,
+            'statusIdOld': statusIdOld,
+            'cardOrderOld': cardOrderOld}
+        console.log(object)
+        if (boardId === boardIdOld) {update_entry(object, updateStatusCard)}
     } else {targetElement.parentNode.prepend(elementOnTheMove)}
+
     elementOnTheMove = null
     targetElement = null
 }
-
 
 // boards, statuses and cards initialisation//
 async function init() {

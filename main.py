@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, jsonify, make_response
 from util import json_response
-
+import json
 import data_handler
 import data_manager as dm
 
@@ -79,13 +79,17 @@ def create_new_card(board_id):
     Create new card
     """
     try:
+
         board_id_obj = request.get_json()
         response = make_response(jsonify({"message": "JSON received"}), 200)
         target_board_id = board_id_obj['name']
         card_name = 'new card'
         status_id = str(0)
-        max_order = dm.get_cards_order(target_board_id)
-        order = str(int(max_order['max']) + 1)
+        if dm.get_cards_order(board_id)['max'] is None:
+            order = 0
+        else:
+            max_order = dm.get_cards_order(board_id)
+            order = str(int(max_order['max']) + 1)
         dm.write_cards(target_board_id, card_name, status_id, order)
         return "create new card successful"
     except:
@@ -96,7 +100,7 @@ def create_new_card(board_id):
 @json_response
 def delete_card(object):
     try:
-        data = request.get_json()['name']# de transformat in dict
+        data = request.get_json()['name']
         data = data[1:-1]
         response = make_response(jsonify({"message": "JSON received"}), 200)
         data_list = data.split(',')
@@ -108,6 +112,35 @@ def delete_card(object):
     except:
         return "An error has occurred"
 
+
+@app.route('/update-board-name', methods=['GET', 'POST'])
+@json_response
+def update_board_name():
+    try:
+        data = request.get_json()
+        data = data['name']
+        board_id = data['id']
+        board_name = data['name']
+        dm.update_boards(board_id, board_name)
+        response = make_response(jsonify({"message": "JSON received"}), 200)
+        return "create new card successful"
+    except:
+        return "An error has occurred"
+
+
+    @app.route('/update-card-name', methods=['GET', 'POST'])
+    @json_response
+    def update_card_name():
+        try:
+            data = request.get_json()
+            data = data['name']
+            board_id = data['id']
+            board_name = data['name']
+            dm.update_boards(board_id, board_name)
+            response = make_response(jsonify({"message": "JSON received"}), 200)
+            return "create new card successful"
+        except:
+            return "An error has occurred"
 
 
 def main():

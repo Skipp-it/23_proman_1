@@ -120,8 +120,6 @@ def get_last_board_id(cursor: RealDictCursor) -> list:
     return cursor.fetchone()
 
 
-
-
 @database_common.connection_handler
 def update_boards(cursor: RealDictCursor, id: int, title: str) -> list:
 
@@ -132,14 +130,11 @@ def update_boards(cursor: RealDictCursor, id: int, title: str) -> list:
             """
     args = {'id': id, 'title': title}
     cursor.execute(query, args)
-    updated_query = f"""
-            SELECT *
-            FROM boards
-            WHERE id = %(id)s
-            """
-    args = {'id': id}
-    cursor.execute(updated_query, args)
-    return cursor.fetchall()
+
+######
+
+
+
 
 
 @database_common.connection_handler

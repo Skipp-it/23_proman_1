@@ -5,11 +5,13 @@ const cardsRoute = '/get-cards';
 const newBoardRoute = '/new-board';
 const newCardRoute = '/new-card';
 const deleteCardUrl = '/delete-card';
+const updateCardUrl = '/update-card-name';
+const updateBoardNameRoute = '/update-board-name'
 const inputNewBoard = document.getElementById('input-board');
 const saveButton = document.querySelector('.saveBtn');
 const modal = document.querySelector('.modal');
 const container = document.querySelector('#board-container');
-// let addCardButton = document.querySelectorAll()
+
 
 
 addBoardButton.addEventListener('click', ()=>{
@@ -51,19 +53,32 @@ async function submit_entry(elementName, url) {
 }
 
 
-async function getBoards(callback) {
-        // the boards are retrieved and then the callback function is called with the boards
+//POST
+async function update_entry(elementName, url) {
+    let submitData = {
+        'name': elementName
+    };
+    let response = await fetch(`${url}`, {
+        method: "POST",
+        mode: "cors",
+        cache: "default",
+        credentials: "include",
+        headers: {"Content-Type": "application/json"},
+        redirect: "follow",
+        body: JSON.stringify(submitData)
+    })
+    let result = await response.json()
+    console.log(result)
+}
 
-        // Here we use an arrow function to keep the value of 'this' on dataHandler.
-        //    if we would use function(){...} here, the value of 'this' would change.
+
+async function getBoards(callback) {
         let jsonData = await apiGet(boardsRoute)
         callback(jsonData)
 }
 
 
 function showBoards(boards) {
-        // shows boards appending them to #boards div
-        // it adds necessary event listeners also
     for (let board of boards) {
         let section = document.createElement('section')
             section.classList.add('board', 'accordion')
@@ -77,7 +92,14 @@ function showBoards(boards) {
         let title = document.createElement('span')
             title.classList.add('board-title')
             title.innerHTML = `${board.title}`
-        let addButton = document.createElement('button')
+            title.contentEditable = true;
+            title.addEventListener('keydown',event => {
+                if (event.key === 'Enter') {
+                    event.preventDefault()
+                    let object = {'name': title.textContent, 'id': board.id}
+                    update_entry(object,updateBoardNameRoute)
+            }})
+            let addButton = document.createElement('button')
             addButton.classList.add('board-add', 'btn', 'btn-outline-secondary')
             addButton.setAttribute("board-id", `${board.id}`)
             addButton.addEventListener('click', () => {
@@ -103,10 +125,6 @@ function showBoards(boards) {
 
 
 async function getStatuses(callback) {
-        // the boards are retrieved and then the callback function is called with the boards
-
-        // Here we use an arrow function to keep the value of 'this' on dataHandler.
-        //    if we would use function(){...} here, the value of 'this' would change.
         let jsonData = await apiGet(statusesRoute)
         callback(jsonData)
 }
@@ -118,12 +136,11 @@ function showStatuses(statuses) {
     let sections = document.querySelectorAll('.board')
     for (let section of sections) {
         let boardColumnHolder = document.createElement('div')
-        boardColumnHolder.classList.add("board-columns", 'show', 'collapse')
+        boardColumnHolder.classList.add("board-columns", 'collapse', 'show')
         let boardId = section.getAttribute('data-id')
         boardColumnHolder.setAttribute('id', `collapse${boardId}`)
         boardColumnHolder.setAttribute('aria-labelledby',`header${boardId}`)
         boardColumnHolder.setAttribute('data-parent', `#board${boardId}`)
-         //????
         for (let status of statuses) {
             let boardColumn = document.createElement('div')
                 boardColumn.classList.add('board-column')
@@ -137,6 +154,9 @@ function showStatuses(statuses) {
                 boardColContent.setAttribute('board-id', `${boardId}`)
                 boardColContent.setAttribute('aria-labelledby',`${boardId}`)
                 boardColContent.setAttribute('data-parent', `#board${boardId}`)
+                boardColContent.classList.add('dropzone')
+                boardColContent.addEventListener('dragover',dragOver)
+                boardColContent.addEventListener('onmouseup', moveElement)
             boardColumn.appendChild(boardColTitle)
             boardColumn.appendChild(boardColContent)
             boardColumnHolder.appendChild(boardColumn)
@@ -147,19 +167,13 @@ function showStatuses(statuses) {
 
 
 async function getCards(callback) {
-        // the boards are retrieved and then the callback function is called with the boards
-
-        // Here we use an arrow function to keep the value of 'this' on dataHandler.
-        //    if we would use function(){...} here, the value of 'this' would change.
         let jsonData = await apiGet(cardsRoute)
         callback(jsonData)
 }
 
 
-function showCards(cards) {
-    // shows boards appending them to #boards div
-    // it adds necessary event listeners also
 
+function showCards(cards) {
     let boardColContents = document.querySelectorAll('.board-column-content')
     for (let boardColContent of boardColContents) {
         let boardId = boardColContent.getAttribute('board-id')
@@ -168,9 +182,13 @@ function showCards(cards) {
             if (card.boards_id == +boardId && card.statuses_id == +statusId) {
                 let task = document.createElement('div')
                 task.classList.add("card")
+                task.setAttribute('id', `${boardId}${statusId}${card.ordered}`)
                 task.setAttribute('status-id', `${statusId}`)
                 task.setAttribute('board-id', `${boardId}`)
                 task.setAttribute('card-order', `${card.ordered}`)
+                task.setAttribute('draggable',"true")
+                task.addEventListener('dragstart', dragStart)
+                task.addEventListener('dragend', dragEnd)
                 let buttonRemove = document.createElement('div')
                 buttonRemove.setAttribute('status-id', `${statusId}`)
                 buttonRemove.setAttribute('board-id', `${boardId}`)
@@ -195,17 +213,50 @@ function showCards(cards) {
     }
 }
 
+
+////Drag & Drop
+
+let elementOnTheMove = null
+let targetElement = null
+
+
+function dragStart(e) {
+    if (e.target.classList.contains('card')) {
+    elementOnTheMove = e.target
+}}
+
+
+function dragOver(e) {
+    if (e.target.classList.contains('card') || e.target.classList.contains('dropzone')){
+         targetElement = e.target
+    }
+        e.preventDefault();
+    }
+
+
+function dragEnd(e) {
+    console.log("dragend")
+    if (elementOnTheMove == null || targetElement == null){return;}
+    elementOnTheMove.parentNode.removeChild(elementOnTheMove)
+    if (targetElement.classList.contains('dropzone')) {
+        targetElement.prepend(elementOnTheMove)
+    } else {targetElement.parentNode.prepend(elementOnTheMove)}
+    elementOnTheMove = null
+    targetElement = null
+}
+
+
+// boards, statuses and cards initialisation//
 async function init() {
     await getBoards(showBoards)
     await getStatuses(showStatuses)
     await getCards(showCards)
-
 }
+
 
 function main(){
     container.innerHTML = ''
     init()
-
 };
 
 main()

@@ -148,22 +148,23 @@ def update_card_name():
 @app.route('/update-status', methods=['GET', 'POST'])
 @json_response
 def update_status():
-    try:
-        data = request.get_json()
-        data = data['name']
-        print(data)
-        board_id = data['board_id']
-        status_id = data['status_id']
-        card_order = data['card_order']
-        old_board_id = data['boardIdOld']
-        old_status_id = data['statusIdOld']
-        old_card_order = data['cardOrderOld']
-        id = dm.get_card_id(old_board_id, old_status_id, old_card_order)
-        dm.update_statuses(board_id, status_id, card_order, id['id'])
-        response = make_response(jsonify({"message": "JSON received"}), 200)
-        return "create new card successful"
-    except:
-        return "An error has occurred"
+    # try:
+    data = request.get_json()
+    data = data['name']
+    print(data)
+    board_id = data['board_id']
+    status_id = data['status_id']
+    card_order = data['card_order']
+    old_board_id = data['boardIdOld']
+    old_status_id = data['statusIdOld']
+    old_card_order = data['cardOrderOld']
+    id = int(data['cardId'])
+    # id = dm.get_card_id(old_board_id, old_status_id, old_card_order)
+    dm.update_statuses(board_id, status_id, card_order, id)
+    response = make_response(jsonify({"message": "JSON received"}), 200)
+    return "create new card successful"
+    # except:
+    #     return "An error has occurred"
 
 
 def main():

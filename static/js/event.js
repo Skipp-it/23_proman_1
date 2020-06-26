@@ -103,6 +103,7 @@ function showBoards(boards) {
                     event.preventDefault()
                     let object = {'name': title.textContent, 'id': board.id}
                     update_entry(object,updateBoardNameRoute)
+                    title.style.caretColor = "red"
             }})
             let addButton = document.createElement('button')
             addButton.classList.add('board-add', 'btn', 'btn-outline-secondary')
@@ -185,15 +186,14 @@ function showCards(cards) {
         for (let card of cards) {
             if (card.boards_id == +boardId && card.statuses_id == +statusId) {
                 let task = document.createElement('div')
-                task.classList.add("card")
-                task.setAttribute('id', `${boardId}${statusId}${card.ordered}`)
+                task.classList.add("card", 'dropzone')
+                task.setAttribute('id', `${card.id}`)
                 task.setAttribute('status-id', `${statusId}`)
                 task.setAttribute('board-id', `${boardId}`)
                 task.setAttribute('card-order', `${card.ordered}`)
                 task.setAttribute('draggable',"true")
                 task.addEventListener('dragstart', dragStart)
                 task.addEventListener('dragend', dragEnd)
-
                 let buttonRemove = document.createElement('div')
                 buttonRemove.setAttribute('status-id', `${statusId}`)
                 buttonRemove.setAttribute('board-id', `${boardId}`)
@@ -216,6 +216,7 @@ function showCards(cards) {
                     event.preventDefault()
                     let object = {'cardName': cardTitle.textContent,'boardId': boardId, 'statusId': statusId, 'cardOrdered': card.ordered}
                     update_entry(object,updateCardUrl)
+                    cardTitle.style.caretColor = "transparent"
             }})
                 task.appendChild(cardTitle)
                 task.appendChild(buttonRemove)
@@ -224,6 +225,7 @@ function showCards(cards) {
         }
     }
 }
+
 
 ////Drag & Drop
 
@@ -246,9 +248,13 @@ function dragOver(e) {
 
 
 function dragEnd(e) {
-    if (elementOnTheMove == null || targetElement == null){return;}
+    console.log('dragend')
+    if (elementOnTheMove == null || targetElement == null){
+        console.log('la null'); return;}
     elementOnTheMove.parentNode.removeChild(elementOnTheMove)
     if (targetElement.classList.contains('dropzone')) {
+        // if () daca fac drop pe card atunci aloci cardul pe parent!!!
+        console.log('dropzone')
         targetElement.prepend(elementOnTheMove)
         let boardId = targetElement.getAttribute('board-id')
         let statusId = targetElement.getAttribute('status-id')
@@ -256,29 +262,34 @@ function dragEnd(e) {
         let boardIdOld = elementOnTheMove.getAttribute('board-id')
         let statusIdOld = elementOnTheMove.getAttribute('status-id')
         let cardOrderOld = elementOnTheMove.getAttribute('order-id')
-        if (cardOrder == null) { cardOrder = '0' }
-        if (cardOrderOld == null) { cardOrderOld = '0' }
+        let cardId = elementOnTheMove.getAttribute('id')
+        if (cardOrder === null) {cardOrder = '0' }
+        if (cardOrderOld === null) {cardOrderOld = '0'}
         let object = {
             'board_id': boardId,
             'status_id': statusId,
             'card_order': cardOrder,
             'boardIdOld': boardIdOld,
             'statusIdOld': statusIdOld,
-            'cardOrderOld': cardOrderOld}
+            'cardOrderOld': cardOrderOld,
+            'cardId': cardId}
         console.log(object)
         if (boardId === boardIdOld) {update_entry(object, updateStatusCard)}
-    } else {targetElement.parentNode.prepend(elementOnTheMove)}
+    } else {targetElement.parentNode.appendChild(elementOnTheMove)}
 
     elementOnTheMove = null
     targetElement = null
 }
 
 // boards, statuses and cards initialisation//
+
 async function init() {
     await getBoards(showBoards)
     await getStatuses(showStatuses)
     await getCards(showCards)
 }
+
+
 
 
 function main(){

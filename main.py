@@ -30,6 +30,7 @@ def get_cards():
     """
     All the boards
     """
+
     return data_handler.get_cards()
 
 

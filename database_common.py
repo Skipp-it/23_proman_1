@@ -1,9 +1,10 @@
 # Creates a decorator to handle the database connection/cursor opening/closing.
 # Creates the cursor with RealDictCursor, thus it returns real dictionaries, where the column names are the keys.
-
-
+import urllib, os
 import psycopg2
 import psycopg2.extras
+
+production = True
 
 
 def get_connection_string():
@@ -30,8 +31,20 @@ def get_connection_string():
 
 def open_database():
     try:
-        connection_string = get_connection_string()
-        connection = psycopg2.connect(connection_string)
+        if not production:
+            connection_string = get_connection_string()
+            connection = psycopg2.connect(connection_string)
+        else:
+            urllib.parse.uses_netloc.append('postgres')
+            url = urllib.parse.urlparse(os.environ.get('DATABASE_URL'))
+            connection = psycopg2.connect(
+                sslmode="require",
+                database=url.path[1:],
+                user=url.username,
+                password=url.password,
+                host=url.hostname,
+                port=url.port
+            )
         connection.autocommit = True
     except psycopg2.DatabaseError as exception:
         print('Database connection problem')
@@ -48,5 +61,4 @@ def connection_handler(function):
         dict_cur.close()
         connection.close()
         return ret_value
-
     return wrapper

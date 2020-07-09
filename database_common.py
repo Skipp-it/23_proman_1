@@ -4,7 +4,7 @@ import urllib, os
 import psycopg2
 import psycopg2.extras
 
-production = True
+production = False
 
 
 def get_connection_string():

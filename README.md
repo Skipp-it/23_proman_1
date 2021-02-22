@@ -1,46 +1,23 @@
 # ProMan (sprint 1)
 
-## An email from the client
+The site allows a dev team to structure it's work better while working in Scrum Agile. 
 
-```
-From: Mark Big <ceo@thepartner.com>
+![Boards](/img/boards.png 'Boards')
 
-Subject: Welcome on board for the ProMan project!
+A new board can be added
 
-In these days everyone wants to create a new project management tool,
-and we're no exception either. We'd like to implement
-something similar to Trello, so we can say we have our own tool!
+![Main](/img/main.png 'Main')
 
-We call it: ProMan
+The entire page is modular and responsive. New Boards can be added, the boards can be collapsed and also , new cards can be created.
 
-Jacob, our senior full-stack developer already started to work on the project.
-He made sure to have a proper backlog, and he started to work on the wireframe
-of the application.
+The cards can be moved arround by Drag & Drop as the card task is in a different stage
 
-Unfortunately Jacob was late one day, he arrived to work at 9:02,
-so we had to fire him. Job starts at 9am, he had to learn it.
+Better with a plan than sorry!
 
-Now it's your job to finish the project!
-Send us the sprint backlog ASAP, and we'll meet at the demo!
+## For the [the live version](https://proman-team.herokuapp.com/) of the app.
 
-Remember, we need completed user stories and quality work!
 
-Mark
-```
-
-Oh well, another nice client.
-
-From the attachments you see that they imagine the app as a
-"one pager" where all the boards are displayed,
-and when one is opened then the corresponding cards are shown.
-Their [screen plan](https://learn.code.cool/media/web-python/proman-screen-plan.png ':ignore')
-is not too sophisticated but seems to be a good staring point.
-
-Of course, the customer would love to have an application which is easy
-to use at first glance, functionality is straightforward
-and looks nice on different screen sizes if possible.
-As this is [usually](https://learn.code.cool/media/web-python/specification-vs-reality.png ':ignore')
-the case. Let's get this job done.
+# The project Requirements
 
 ## What are you going to learn?
 
@@ -171,23 +148,3 @@ the case. Let's get this job done.
 22. Allow the user to collaborate with other users in real-time
 
     - Whenever any user makes a change to any board or its cards, ensure that other users with access to it get the refresh automatically, so they can immediately see the changes
-
-
-## General requirements
-
-
-None
-
-## Starting repository
-
-One team member should follow [this link](https://journey.code.cool/v2/project/team/blueprint/proman-1/python) to create your project repository and invite the others.
-
-## Background materials
-
-- :exclamation: [Callbacks](https://learn.code.cool/full-stack/#/../pages/javascript/javascript-callbacks)
-- :exclamation: [API, AJAX](https://learn.code.cool/full-stack/#/../pages/web/the-last-missing-piece-api)
-- :exclamation: [RESTful](https://learn.code.cool/full-stack/#/../pages/web/restful)
-- [Pass by value vs by reference](https://learn.code.cool/full-stack/#/../pages/javascript/javascript-pass-by-value-vs-reference)
-- [Modules](https://learn.code.cool/full-stack/#/../pages/javascript/javascript-modules)
-- [Keyword this](https://learn.code.cool/full-stack/#/../pages/javascript/javascript-this)
-- [Tips & Tricks](https://learn.code.cool/full-stack/#/../pages/web/web-with-python-tips.md)
